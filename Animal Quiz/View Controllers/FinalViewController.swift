@@ -9,53 +9,31 @@ import UIKit
 
 class FinalViewController: UIViewController {
     
-    
-    @IBOutlet var finalNavigationItem: UINavigationItem!
     @IBOutlet var resultLabel: UILabel!
     @IBOutlet var resultDescriptionLabel: UILabel!
     
     var answerChosen: [Answer] = []
-    
-    private var animalsTypesCounts: [AnimalType: Int] = [.turtle: 0,
-                                                       .dog: 0,
-                                                       .cat: 0,
-                                                       .rabbit: 0]
-    private var mostFrequentAnimalType: AnimalType!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        finalNavigationItem.setHidesBackButton(true, animated: true)
+        navigationItem.hidesBackButton = true
         
-        countAnimalsTypes()
-        determineMostFrequentAnimalType()
-        
-        resultLabel.text = "Вы — \(mostFrequentAnimalType.rawValue)!"
-        resultDescriptionLabel.text = mostFrequentAnimalType.definition
+        let maxAnimal = getMaxAnimal()
+        updateUI(with: maxAnimal)
     }
-    
-    
 }
 
 // MARK: - Private
 extension FinalViewController {
-    private func countAnimalsTypes() {
-        for animal in answerChosen {
-            switch animal.type {
-            case .turtle:
-                animalsTypesCounts[.turtle]! += 1
-            case .rabbit:
-                animalsTypesCounts[.rabbit]! += 1
-            case .cat:
-                animalsTypesCounts[.cat]! += 1
-            case .dog:
-                animalsTypesCounts[.dog]! += 1
-            }
-        }
+    private func getMaxAnimal() -> AnimalType? {
+        return Dictionary(grouping: answerChosen, by: { $0.type })
+            .sorted(by: {$0.value.count > $1.value.count})
+            .first?.key
     }
     
-    private func determineMostFrequentAnimalType() {
-        let type = animalsTypesCounts.max { a, b in a.value < b.value }
-        mostFrequentAnimalType = type?.key
+    private func updateUI(with animal: AnimalType?) {
+        resultLabel.text = "Вы — \(animal?.rawValue ?? "🐶" )!"
+        resultDescriptionLabel.text = animal?.definition ?? ""
     }
 }
